@@ -30,7 +30,7 @@ https://github.com/globulus/swiftui-pull-to-refresh
 You can also use **CocoaPods**:
 
 ```ruby
-pod 'SwiftUI-Pull-To-Refresh', '~> 1.1.9'
+pod 'SwiftUI-Pull-To-Refresh', '~> 2.0.0'
 ```
 
 ## Sample usage
