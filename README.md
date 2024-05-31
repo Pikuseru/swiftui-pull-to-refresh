@@ -169,7 +169,7 @@ RefreshableScrollView(
 
 ## Changelog
 
-* 2.0.0 - Changed `RefreshProgressBuilder` to take an extra `percent` value in the range `0...1` and added a `RefreshActivityIndicator.masked(state: RefreshState, percent: Double)` modifier for iOS 15+
+* 2.0.0 - Changed `RefreshProgressBuilder` to take an extra `percent` value in the range `0...1`. Added a `RefreshActivityIndicator.masked(state: RefreshState, percent: Double)` modifier for iOS 15+. Fixed warning on `refreshableCompat`.
 * 1.1.9 - Reworked haptic feedback, added haptic feedback as optional.
 * 1.1.8 - Fixed crash when doing two pulls quickly in succession.
 * 1.1.7 - Updated haptic feedback. Increased Swift version for Podspec.
