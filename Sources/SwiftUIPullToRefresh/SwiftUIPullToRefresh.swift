@@ -61,8 +61,8 @@ public enum RefreshState {
 }
 
 // ViewBuilder for the custom progress View, that may render itself
-// based on the current RefreshState.
-public typealias RefreshProgressBuilder<Progress: View> = (RefreshState) -> Progress
+// based on the current RefreshState and a % value in the range 0...1
+public typealias RefreshProgressBuilder<Progress: View> = (RefreshState, Double) -> Progress
 
 // Default color of the rectangle behind the progress spinner
 public let defaultLoadingViewBackgroundColor = Color(UIColor.systemBackground)
@@ -122,7 +122,7 @@ public struct RefreshableScrollView<Progress, Content>: View where Progress: Vie
             Rectangle()
               .foregroundColor(loadingViewBackgroundColor)
               .frame(height: threshold)
-            progress(state)
+              progress(state, max(min(offset / threshold, 1), 0))
           }.offset(y: (state == .loading) ? -max(0, offset) : -threshold)
         }
       }
@@ -180,7 +180,7 @@ public extension RefreshableScrollView where Progress == RefreshActivityIndicato
                   loadingViewBackgroundColor: loadingViewBackgroundColor,
                   threshold: threshold,
                   onRefresh: onRefresh,
-                  progress: { state in
+                  progress: { state, percent in
                     RefreshActivityIndicator(isAnimating: state == .loading) {
                         $0.hidesWhenStopped = false
                     }
@@ -210,6 +210,59 @@ public struct RefreshActivityIndicator: UIViewRepresentable {
     isAnimating ? uiView.startAnimating() : uiView.stopAnimating()
     configuration(uiView)
   }
+}
+
+extension RefreshActivityIndicator {
+    /// Masks the underlying UIActivityIndicatorView with
+    /// circle segments to recreate the UIRefreshControl
+    /// effect of appearing capsules.
+    ///
+    /// Assumes the activity indicator view is square and
+    /// uses pythagoras h = √(x²+y²) to calculate radius.
+    ///
+    /// - Parameters:
+    ///   - state: refresh state
+    ///   - percent: value in the range 0...1
+    /// - Returns: a masked view
+    @ViewBuilder public func masked(state: RefreshState, percent: Double) -> some View {
+        if #available(iOS 15, *) {
+            mask {
+                if state == .waiting {
+                    GeometryReader { geo in
+                        Path { path in
+                            let rect = geo.frame(in: .local)
+                            let center = CGPoint(x: rect.midX, y: rect.midY)
+
+                            // pythagoras
+                            let halfSquared = pow(rect.width / 2, 2)
+                            let radius = sqrt(halfSquared + halfSquared)
+
+                            // these values have been picked through
+                            // trial and error so we can see capsules
+                            // we -90 to start at top center
+                            let start = Double(-45 / 2 - 90)
+                            let end = start + floor((360 * percent) / (45)) * 45
+
+                            // draw the segments over the capsules
+                            path.move(to: center)
+                            path.addArc(
+                              center: center,
+                              radius: radius,
+                              startAngle: .degrees(start),
+                              endAngle: .degrees(end),
+                              clockwise: false
+                            )
+                            path.addLine(to: center)
+                        }
+                    }.frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    Color.black
+                }
+            }
+        } else {
+            self
+        }
+    }
 }
 
 #if compiler(>=5.5)
@@ -329,6 +382,58 @@ struct TestView: View {
      }
 }
 
+struct TestViewWithMaskedLargeRefreshActivityIndicator: View {
+  @State private var now = Date()
+
+  var body: some View {
+    RefreshableScrollView(
+      onRefresh: { done in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+          self.now = Date()
+          done()
+        }
+      }, progress: { state, percent in
+          RefreshActivityIndicator(isAnimating: state == .loading) {
+              $0.hidesWhenStopped = false
+              $0.style = .large
+          }.masked(state: state, percent: percent)
+      }) {
+        VStack {
+          ForEach(1..<20) {
+            Text("\(Calendar.current.date(byAdding: .hour, value: $0, to: now)!)")
+               .padding(.bottom, 10)
+           }
+         }.padding()
+       }
+     }
+}
+
+struct TestViewWithMaskedMediumRefreshActivityIndicator: View {
+  @State private var now = Date()
+
+  var body: some View {
+    RefreshableScrollView(
+      onRefresh: { done in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+          self.now = Date()
+          done()
+        }
+      }, progress: { state, percent in
+          RefreshActivityIndicator(isAnimating: state == .loading) {
+              $0.hidesWhenStopped = false
+          }.masked(state: state, percent: percent)
+      }) {
+        VStack {
+          ForEach(1..<20) {
+            Text("\(Calendar.current.date(byAdding: .hour, value: $0, to: now)!)")
+               .padding(.bottom, 10)
+           }
+         }.padding()
+       }
+     }
+}
+
+
 struct TestViewWithLargerThreshold: View {
   @State private var now = Date()
 
@@ -361,9 +466,9 @@ struct TestViewWithCustomProgress: View {
             done()
           }
         },
-                             progress: { state in
+        progress: { state, percent in
            if state == .waiting {
-               Text("Pull me down...")
+               Text("Pull me down... \(percent)")
            } else if state == .primed {
                Text("Now release!")
            } else {
@@ -390,7 +495,7 @@ struct TestViewWithAsync: View {
      RefreshableScrollView(action: {
          try? await Task.sleep(nanoseconds: 3_000_000_000)
          now = Date()
-     }, progress: { state in
+     }, progress: { state, percent in
          RefreshActivityIndicator(isAnimating: state == .loading) {
              $0.hidesWhenStopped = false
          }
@@ -422,7 +527,7 @@ struct TestViewCompat: View {
             self.now = Date()
             done()
           }
-      }, progress: { state in
+      }, progress: { state, percent in
           RefreshActivityIndicator(isAnimating: state == .loading) {
               $0.hidesWhenStopped = false
           }
@@ -434,6 +539,18 @@ struct TestViewCompat: View {
 struct TestView_Previews: PreviewProvider {
     static var previews: some View {
         TestView()
+    }
+}
+
+struct TestViewWithMaskedLargeRefreshActivityIndicator_Previews: PreviewProvider {
+    static var previews: some View {
+        TestViewWithMaskedLargeRefreshActivityIndicator()
+    }
+}
+
+struct TestViewWithMaskedMediumRefreshActivityIndicator_Previews: PreviewProvider {
+    static var previews: some View {
+        TestViewWithMaskedMediumRefreshActivityIndicator()
     }
 }
 

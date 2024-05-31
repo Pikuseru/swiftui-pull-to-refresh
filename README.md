@@ -133,8 +133,43 @@ progress: { state in // HERE
 
 Check out [this recipe](https://swiftuirecipes.com/blog/pull-to-refresh-with-swiftui-scrollview) for in-depth description of the component and its code. Check out [SwiftUIRecipes.com](https://swiftuirecipes.com) for more **SwiftUI recipes**!
 
+## Changes in Version 2.0.0
+
+### RefreshProgressBuilder updated to take percent value in range 0...1
+
+`RefreshProgressBuilder` now takes two parameters, the refresh state and a percent value in the range `0...1` which is the `offset` as a percentage of the `threshold` value; this can be used to update graphics as the user pulls down to get animated effects.
+
+### RefreshActivityIndicator mask on iOS 15+
+
+ This modifier is designed to be used with the updated `RefreshProgressBuilder` parameters `state` and `percent`, and adds a mask on iOS 15+ that recreates the capsule animation effect of `UIRefreshControl` as the user drags down.
+
+ The modifier has no effect on iOS 13 and 14 and returns `self`.
+
+ ```swift
+RefreshableScrollView(
+  onRefresh: { done in
+    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+      self.now = Date()
+      done()
+    }
+  }, progress: { state, percent in
+      RefreshActivityIndicator(isAnimating: state == .loading) {
+          $0.hidesWhenStopped = false
+          $0.style = .large
+      }.masked(state: state, percent: percent) // this performs animation as user drags
+  }) {
+    VStack {
+      ForEach(1..<20) {
+        Text("\(Calendar.current.date(byAdding: .hour, value: $0, to: now)!)")
+            .padding(.bottom, 10)
+        }
+      }.padding()
+    }
+```
+
 ## Changelog
 
+* 2.0.0 - Changed `RefreshProgressBuilder` to take an extra `percent` value in the range `0...1` and added a `RefreshActivityIndicator.masked(state: RefreshState, percent: Double)` modifier for iOS 15+
 * 1.1.9 - Reworked haptic feedback, added haptic feedback as optional.
 * 1.1.8 - Fixed crash when doing two pulls quickly in succession.
 * 1.1.7 - Updated haptic feedback. Increased Swift version for Podspec.
