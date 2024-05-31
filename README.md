@@ -1,8 +1,20 @@
-# SwiftUIPullToRefresh
+# SwiftUIPullToRefreshPercent
+
+## Please Read This First
+
+This is a fork of [SwiftUIPullToRefresh](https://github.com/globulus/swiftui-pull-to-refresh) that adds new behaviour for performing animations, see _Changes in Version 2.0.0_ at the bottom of this file. Please be aware this library fork has been done for some specific animation behaviour and this fork **won't** be actively maintained going forwards (other than bug fixes required by the author.) You are welcome to fork and raise PRs.
+
+This library is [licensed under the MIT license](./LICENSE), which allows for copying and modification.
+
+Code formatting has been done with [SwiftFormat](https://github.com/nicklockwood/SwiftFormat).
+
+This forked library only supports **iOS 15 and later**.
+
+## Summary
 
 Pull to refresh is a common UI pattern, supported in UIKit via UIRefreshControl. (Un)surprisingly, it's also unavailable in SwiftUI prior to version 3, and even then [it's a bit lackluster](https://swiftuirecipes.com/blog/pull-to-refresh-with-swiftui-scrollview#drawbacks).
 
-This package contains a component - `RefreshableScrollView`  - that enables this functionality with **any `ScrollView`**. It also **doesn't rely on `UIViewRepresentable`**, and works with **any iOS version**. The end result looks like this:
+This package contains a component - `RefreshableScrollView`  - that enables this functionality with **any `ScrollView`**. It also **doesn't rely on `UIViewRepresentable`**. The end result looks like this:
 
 ![in action](https://swiftuirecipes.com/user/pages/01.blog/pull-to-refresh-with-swiftui-scrollview/ezgif-4-bf1673b185d4.gif)
 
@@ -24,13 +36,13 @@ This package contains a component - `RefreshableScrollView`  - that enables this
 This component is distrubuted as a **Swift package**. Just add this URL to your package list:
 
 ```text
-https://github.com/globulus/swiftui-pull-to-refresh
+https://github.com/Pikuseru/swiftui-pull-to-refresh-percent
 ```
 
 You can also use **CocoaPods**:
 
 ```ruby
-pod 'SwiftUI-Pull-To-Refresh', '~> 2.0.0'
+pod 'SwiftUI-Pull-To-Refresh-Percent', '~> 2.0.0'
 ```
 
 ## Sample usage
@@ -139,13 +151,11 @@ Check out [this recipe](https://swiftuirecipes.com/blog/pull-to-refresh-with-swi
 
 `RefreshProgressBuilder` now takes two parameters, the refresh state and a percent value in the range `0...1` which is the `offset` as a percentage of the `threshold` value; this can be used to update graphics as the user pulls down to get animated effects.
 
-### RefreshActivityIndicator mask on iOS 15+
+### RefreshActivityIndicator mask
 
- This modifier is designed to be used with the updated `RefreshProgressBuilder` parameters `state` and `percent`, and adds a mask on iOS 15+ that recreates the capsule animation effect of `UIRefreshControl` as the user drags down.
+This modifier is designed to be used with the updated `RefreshProgressBuilder` parameters `state` and `percent`, and adds a mask that recreates the capsule animation effect of `UIRefreshControl` as the user drags down.
 
- The modifier has no effect on iOS 13 and 14 and returns `self`.
-
- ```swift
+```swift
 RefreshableScrollView(
   onRefresh: { done in
     DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
@@ -169,7 +179,7 @@ RefreshableScrollView(
 
 ## Changelog
 
-* 2.0.0 - Changed `RefreshProgressBuilder` to take an extra `percent` value in the range `0...1`. Added a `RefreshActivityIndicator.masked(state: RefreshState, percent: Double)` modifier for iOS 15+. Fixed warning on `refreshableCompat`.
+* 2.0.0 - Changed `RefreshProgressBuilder` to take an extra `percent` value in the range `0...1` and added a `RefreshActivityIndicator.masked(state: RefreshState, percent: Double)` modifier, increased minimum version to iOS 15.
 * 1.1.9 - Reworked haptic feedback, added haptic feedback as optional.
 * 1.1.8 - Fixed crash when doing two pulls quickly in succession.
 * 1.1.7 - Updated haptic feedback. Increased Swift version for Podspec.

@@ -1,0 +1,53 @@
+# -------- Swiftformat - Configuration--------
+
+# swift version
+--swiftversion 5.9
+
+# file/folders options
+--exclude .build
+--exclude .github
+--exclude .swiftpm
+--exclude docs
+--exclude icons
+--exclude Pods
+--exclude profiles
+--exclude scripts
+--exclude tools
+
+# Rules options
+--patternlet inline
+--commas inline                                     # rule: trailingCommas
+--extensionacl on-declarations                      # rule: extensionAccessControl
+--header strip                                      # rule: fileHeader
+--importgrouping testable-last                      # rule: sortedImports
+--self init-only                                    # rule: redundantSelf
+--stripunusedargs closure-only                      # rule: unusedArguments
+
+--funcattributes prev-line                          # rule: wrapAttributes
+--typeattributes prev-line
+--varattributes same-line
+
+--wraparguments before-first                         # rule: wrapArguments
+--wrapparameters before-first
+--wrapcollections before-first
+--wrapconditions after-first
+--wraptypealiases after-first
+
+
+# --------- Rules Disabled by Default ---------
+# Ok to Enable
+--enable blankLinesBetweenImports
+--enable blankLineAfterImports
+--enable blockComments
+--enable isEmpty
+--enable sortSwitchCases
+--enable wrapEnumCases
+--enable wrapSwitchCases
+
+
+# --------- Rules Enabled by Default ---------
+# Rules to disable (to be decided)
+--disable andOperator
+--disable preferForLoop
+--disable preferKeyPath
+--disable wrapMultilineStatementBraces

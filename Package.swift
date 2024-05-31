@@ -1,23 +1,23 @@
-// swift-tools-version:5.3
-// The swift-tools-version declares the minimum version of Swift required to build this package.
-
+// swift-tools-version:5.9
 import PackageDescription
 
 let package = Package(
-    name: "SwiftUIPullToRefresh",
+    name: "SwiftUIPullToRefreshPercent",
     platforms: [
-            .iOS(.v13)
-        ],
+        .iOS(.v15)
+    ],
     products: [
         .library(
-            name: "SwiftUIPullToRefresh",
-            targets: ["SwiftUIPullToRefresh"]),
+            name: "SwiftUIPullToRefreshPercent",
+            targets: ["SwiftUIPullToRefreshPercent"]
+        )
     ],
     dependencies: [
     ],
     targets: [
         .target(
-            name: "SwiftUIPullToRefresh",
-            dependencies: [])
+            name: "SwiftUIPullToRefreshPercent",
+            dependencies: []
+        )
     ]
 )
