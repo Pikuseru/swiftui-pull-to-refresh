@@ -42,7 +42,7 @@ https://github.com/Pikuseru/swiftui-pull-to-refresh-percent
 You can also use **CocoaPods**:
 
 ```ruby
-pod 'SwiftUI-Pull-To-Refresh-Percent', '~> 2.0.0'
+pod 'SwiftUIPullToRefreshPercent', '~> 2.0.0'
 ```
 
 ## Sample usage
