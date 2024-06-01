@@ -64,8 +64,8 @@ public enum RefreshState {
 }
 
 // ViewBuilder for the custom progress View, that may render itself
-// based on the current RefreshState and a % value in the range 0...1
-public typealias RefreshProgressBuilder<Progress: View> = (RefreshState, Double) -> Progress
+// based on the current RefreshState and a % value in the range 0...100
+public typealias RefreshProgressBuilder<Progress: View> = (RefreshState, Int) -> Progress
 
 // Default color of the rectangle behind the progress spinner
 public let defaultLoadingViewBackgroundColor = Color(UIColor.systemBackground)
@@ -79,6 +79,7 @@ public struct RefreshableScrollView<Progress, Content>: View where Progress: Vie
     let progress: RefreshProgressBuilder<Progress> // custom progress view
     let content: () -> Content // the ScrollView content
     @State private var offset: CGFloat = 0
+    @State private var percent = 0
     @State private var state = RefreshState.waiting // the current state
 
     // Haptic Feedback
@@ -127,7 +128,7 @@ public struct RefreshableScrollView<Progress, Content>: View where Progress: Vie
                     Rectangle()
                         .foregroundColor(loadingViewBackgroundColor)
                         .frame(height: threshold)
-                    progress(state, max(min(offset / threshold, 1), 0))
+                    progress(state, percent)
                 }.offset(y: (state == .loading) ? -max(0, offset) : -threshold)
             }
         }
@@ -142,6 +143,9 @@ public struct RefreshableScrollView<Progress, Content>: View where Progress: Vie
                 let movingY = values.first { $0.type == .moving }?.y ?? 0
                 let fixedY = values.first { $0.type == .fixed }?.y ?? 0
                 offset = movingY - fixedY
+                // scaling 0...1 to 0...100 improves scrolling performance
+                // assuming because it reduces the number of state changes
+                percent = Int(max(min(Double(offset / threshold), 1), 0) * 100)
                 if state != .loading { // If we're already loading, ignore everything
                     // Map the preference change action to the UI thread
 
@@ -231,10 +235,13 @@ extension RefreshActivityIndicator {
     ///
     /// - Parameters:
     ///   - state: refresh state
-    ///   - percent: value in the range 0...1
+    ///   - percent: value in the range 0...100
     /// - Returns: a masked view
     @ViewBuilder
-    public func masked(state: RefreshState, percent: Double) -> some View {
+    public func masked(
+        state: RefreshState,
+        percent: Int
+    ) -> some View {
         mask {
             if state == .waiting {
                 GeometryReader { geo in
@@ -249,8 +256,9 @@ extension RefreshActivityIndicator {
                         // these values have been picked through
                         // trial and error so we can see capsules
                         // we -90 to start at top center
+                        let ratio = Double(percent) / 100
                         let start = Double(-45 / 2 - 90)
-                        let end = start + floor((360 * percent) / 45) * 45
+                        let end = start + floor((360 * ratio) / 45) * 45
 
                         // draw the segments over the capsules
                         path.move(to: center)

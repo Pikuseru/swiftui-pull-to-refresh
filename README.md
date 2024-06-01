@@ -42,7 +42,7 @@ https://github.com/Pikuseru/swiftui-pull-to-refresh-percent
 You can also use **CocoaPods**:
 
 ```ruby
-pod 'SwiftUIPullToRefreshPercent', '~> 2.0.0'
+pod 'SwiftUIPullToRefreshPercent', '~> 3.0.0'
 ```
 
 ## Sample usage
@@ -145,11 +145,13 @@ progress: { state in // HERE
 
 Check out [this recipe](https://swiftuirecipes.com/blog/pull-to-refresh-with-swiftui-scrollview) for in-depth description of the component and its code. Check out [SwiftUIRecipes.com](https://swiftuirecipes.com) for more **SwiftUI recipes**!
 
-## Changes in Version 2.0.0
+## Changes in Version 3.0.0
 
-### RefreshProgressBuilder updated to take percent value in range 0...1
+### RefreshProgressBuilder updated to take an `Int` percent value in range `0...100`
 
-`RefreshProgressBuilder` now takes two parameters, the refresh state and a percent value in the range `0...1` which is the `offset` as a percentage of the `threshold` value; this can be used to update graphics as the user pulls down to get animated effects.
+`RefreshProgressBuilder` now takes two parameters, the refresh state and a percent value in the range `0...100` which is the `offset` as a percentage of the `threshold` value; this can be used to update graphics as the user pulls down to get animated effects.
+
+An `Int` percent value is used rather than a `Double` to improve the scrolling performance.
 
 ### RefreshActivityIndicator mask
 
@@ -179,6 +181,7 @@ RefreshableScrollView(
 
 ## Changelog
 
+* 3.0.0 - Changed `percent` to be an `Int` in the range `0...100` to improve scrolling performance.
 * 2.0.0 - Changed `RefreshProgressBuilder` to take an extra `percent` value in the range `0...1` and added a `RefreshActivityIndicator.masked(state: RefreshState, percent: Double)` modifier, increased minimum version to iOS 15.
 * 1.1.9 - Reworked haptic feedback, added haptic feedback as optional.
 * 1.1.8 - Fixed crash when doing two pulls quickly in succession.
