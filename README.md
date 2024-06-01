@@ -2,7 +2,7 @@
 
 ## Please Read This First
 
-This is a fork of [SwiftUIPullToRefresh](https://github.com/globulus/swiftui-pull-to-refresh) that adds new behaviour for performing animations, see _Changes in Version 2.0.0_ at the bottom of this file. Please be aware this library fork has been done for some specific animation behaviour and this fork **won't** be actively maintained going forwards (other than bug fixes required by the author.) You are welcome to fork and raise PRs.
+This is a fork of [SwiftUIPullToRefresh](https://github.com/globulus/swiftui-pull-to-refresh) that adds new behaviour for performing animations, see _Changes in Version 3.0.0_ at the bottom of this file. Please be aware this library fork has been done for some specific animation behaviour and this fork **won't** be actively maintained going forwards (other than bug fixes required by the author.) You are welcome to fork and raise PRs.
 
 This library is [licensed under the MIT license](./LICENSE), which allows for copying and modification.
 
