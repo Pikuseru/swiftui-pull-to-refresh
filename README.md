@@ -42,7 +42,7 @@ https://github.com/Pikuseru/swiftui-pull-to-refresh-percent
 You can also use **CocoaPods**:
 
 ```ruby
-pod 'SwiftUIPullToRefreshPercent', '~> 3.0.0'
+pod 'SwiftUIPullToRefreshPercent', '~> 4.0.0'
 ```
 
 ## Sample usage
@@ -181,6 +181,7 @@ RefreshableScrollView(
 
 ## Changelog
 
+* 4.0.0 - Fixed weird layout issues with some content due to nested `ZStack` and used an overlay instead, added `showsContentUnderProgressWhenLoading` initialiser to disable animation glitches when the view gets completely swapped out when loading a page.
 * 3.0.0 - Changed `percent` to be an `Int` in the range `0...100` to improve scrolling performance.
 * 2.0.0 - Changed `RefreshProgressBuilder` to take an extra `percent` value in the range `0...1` and added a `RefreshActivityIndicator.masked(state: RefreshState, percent: Double)` modifier, increased minimum version to iOS 15.
 * 1.1.9 - Reworked haptic feedback, added haptic feedback as optional.

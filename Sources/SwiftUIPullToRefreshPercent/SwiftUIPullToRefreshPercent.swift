@@ -72,12 +72,13 @@ public let defaultLoadingViewBackgroundColor = Color(UIColor.systemBackground)
 
 public struct RefreshableScrollView<Progress, Content>: View where Progress: View, Content: View {
     let showsIndicators: Bool // if the ScrollView should show indicators
+    let showsContentUnderProgressWhenLoading: Bool // if we want to show the content underneath the progress spinner when loading
     let shouldTriggerHapticFeedback: Bool // if key actions should trigger haptic feedback
     let loadingViewBackgroundColor: Color
     let threshold: CGFloat // what height do you have to pull down to trigger the refresh
     let onRefresh: OnRefresh // the refreshing action
     let progress: RefreshProgressBuilder<Progress> // custom progress view
-    let content: () -> Content // the ScrollView content
+    let content: Content // the ScrollView content
     @State private var offset: CGFloat = 0
     @State private var percent = 0
     @State private var state = RefreshState.waiting // the current state
@@ -89,48 +90,50 @@ public struct RefreshableScrollView<Progress, Content>: View where Progress: Vie
     // We use a custom constructor to allow for usage of a @ViewBuilder for the content
     public init(
         showsIndicators: Bool = true,
+        showsContentUnderProgressWhenLoading: Bool = true,
         shouldTriggerHapticFeedback: Bool = false,
         loadingViewBackgroundColor: Color = defaultLoadingViewBackgroundColor,
         threshold: CGFloat = defaultRefreshThreshold,
         onRefresh: @escaping OnRefresh,
         @ViewBuilder progress: @escaping RefreshProgressBuilder<Progress>,
-        @ViewBuilder content: @escaping () -> Content
+        @ViewBuilder content: () -> Content
     ) {
         self.showsIndicators = showsIndicators
+        self.showsContentUnderProgressWhenLoading = showsContentUnderProgressWhenLoading
         self.shouldTriggerHapticFeedback = shouldTriggerHapticFeedback
         self.loadingViewBackgroundColor = loadingViewBackgroundColor
         self.threshold = threshold
         self.onRefresh = onRefresh
         self.progress = progress
-        self.content = content
+        self.content = content()
     }
 
     public var body: some View {
         // The root view is a regular ScrollView
         ScrollView(showsIndicators: showsIndicators) {
-            // The ZStack allows us to position the PositionIndicator,
-            // the content and the loading view, all on top of each other.
-            ZStack(alignment: .top) {
-                // The moving positioning indicator, that sits at the top
-                // of the ScrollView and scrolls down with the content
-                PositionIndicator(type: .moving)
-                    .frame(height: 0)
+            // The moving positioning indicator, that sits at the top
+            // of the ScrollView and scrolls down with the content
+            PositionIndicator(type: .moving)
+                .frame(height: 0)
 
-                // Your ScrollView content. If we're loading, we want
-                // to keep it below the loading view, hence the alignmentGuide.
-                content()
-                    .alignmentGuide(.top, computeValue: { _ in
-                        (state == .loading) ? -threshold + max(0, offset) : 0
-                    })
-
-                // The loading view. It's offset to the top of the content unless we're loading.
-                ZStack {
-                    Rectangle()
-                        .foregroundColor(loadingViewBackgroundColor)
-                        .frame(height: threshold)
-                    progress(state, percent)
-                }.offset(y: (state == .loading) ? -max(0, offset) : -threshold)
+            // Bung the content below the progress when loading.
+            if state == .loading, showsContentUnderProgressWhenLoading {
+                Spacer().frame(height: threshold)
             }
+
+            // Your ScrollView content.
+            content
+                .overlay(alignment: .top) {
+                    // to avoid quirks with the layout of child views in the
+                    // content, we use an overlay that sits above the content
+                    ZStack {
+                        Rectangle()
+                            .foregroundColor(loadingViewBackgroundColor)
+                            .frame(height: threshold)
+                        progress(state, percent)
+                    }
+                    .offset(y: -threshold)
+                }
         }
         // Put a fixed PositionIndicator in the background so that we have
         // a reference point to compute the scroll offset.

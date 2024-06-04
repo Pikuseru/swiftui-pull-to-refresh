@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                  = 'SwiftUIPullToRefreshPercent'
-  s.version               = '3.0.0'
+  s.version               = '4.0.0'
   s.summary               = 'Pull to refresh on any SwiftUI Scroll View.'
   s.homepage              = 'https://github.com/Pikuseru/swiftui-pull-to-refresh-percent'
   s.license               = { :type => 'MIT', :file => 'LICENSE' }
